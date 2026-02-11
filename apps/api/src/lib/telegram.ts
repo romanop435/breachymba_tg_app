@@ -1,10 +1,35 @@
 import crypto from 'crypto';
 
-export function verifyTelegramInitData(initData: string, botToken: string) {
-  if (!initData || !botToken) return { ok: false, data: null };
+type VerifyOk = {
+  ok: true;
+  data: {
+    user: null | {
+      id: number;
+      username?: string;
+      first_name?: string;
+      last_name?: string;
+    };
+    params: URLSearchParams;
+  };
+};
+
+type VerifyFail = {
+  ok: false;
+  reason:
+    | 'missing_init_data'
+    | 'missing_bot_token'
+    | 'missing_hash'
+    | 'hash_mismatch'
+    | 'expired'
+    | 'invalid_user_json';
+};
+
+export function verifyTelegramInitData(initData: string, botToken: string): VerifyOk | VerifyFail {
+  if (!initData) return { ok: false, reason: 'missing_init_data' };
+  if (!botToken) return { ok: false, reason: 'missing_bot_token' };
   const params = new URLSearchParams(initData);
   const hash = params.get('hash');
-  if (!hash) return { ok: false, data: null };
+  if (!hash) return { ok: false, reason: 'missing_hash' };
 
   const pairs: string[] = [];
   params.forEach((value, key) => {
@@ -20,14 +45,14 @@ export function verifyTelegramInitData(initData: string, botToken: string) {
     .update(dataCheckString)
     .digest('hex');
 
-  if (computedHash !== hash) return { ok: false, data: null };
+  if (computedHash !== hash) return { ok: false, reason: 'hash_mismatch' };
 
   const authDate = params.get('auth_date');
   if (authDate) {
     const authDateNum = Number(authDate) * 1000;
     const now = Date.now();
     const maxAge = 1000 * 60 * 60 * 24; // 24h
-    if (now - authDateNum > maxAge) return { ok: false, data: null };
+    if (now - authDateNum > maxAge) return { ok: false, reason: 'expired' };
   }
 
   const userRaw = params.get('user');
@@ -41,7 +66,7 @@ export function verifyTelegramInitData(initData: string, botToken: string) {
     try {
       user = JSON.parse(userRaw);
     } catch {
-      user = null;
+      return { ok: false, reason: 'invalid_user_json' };
     }
   }
 
