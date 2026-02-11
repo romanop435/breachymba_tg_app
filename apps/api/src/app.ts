@@ -26,7 +26,11 @@ export function buildApp() {
     }
   });
 
-  app.register(cors, { origin: env.corsOrigin, credentials: true });
+  app.register(cors, {
+    origin: env.corsOrigin,
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+  });
   app.register(jwt, { secret: env.jwtSecret });
   app.register(sensible);
   app.register(rateLimit, {
