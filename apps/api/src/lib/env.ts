@@ -7,7 +7,10 @@ export const env = {
     .split(',')
     .map((id) => id.trim())
     .filter(Boolean),
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  corsOrigins: (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
   appBaseUrl: process.env.APP_BASE_URL || 'http://localhost:5173',
   discordClientId: process.env.DISCORD_CLIENT_ID || '',
   discordClientSecret: process.env.DISCORD_CLIENT_SECRET || '',
