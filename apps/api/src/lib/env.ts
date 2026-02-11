@@ -2,7 +2,9 @@ export const env = {
   port: Number(process.env.PORT || 3001),
   databaseUrl: process.env.DATABASE_URL || '',
   jwtSecret: process.env.JWT_SECRET || 'change-me',
-  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || '',
+  telegramBotToken: (process.env.TELEGRAM_BOT_TOKEN || '')
+    .trim()
+    .replace(/^['"]+|['"]+$/g, ''),
   adminTelegramIds: (process.env.ADMIN_TELEGRAM_IDS || '')
     .split(',')
     .map((id) => id.trim())
