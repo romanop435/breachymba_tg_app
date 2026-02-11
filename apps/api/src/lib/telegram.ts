@@ -88,7 +88,8 @@ export function verifyTelegramInitData(initData: string, botToken: string): Veri
   pairs.sort();
   const dataCheckString = pairs.join('\n');
 
-  const secretKey = crypto.createHash('sha256').update(botToken).digest();
+  // Telegram Mini Apps: secret key = HMAC_SHA256(key="WebAppData", message=botToken)
+  const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
   const computedHash = crypto
     .createHmac('sha256', secretKey)
     .update(dataCheckString)
