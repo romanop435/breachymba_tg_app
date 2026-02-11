@@ -15,6 +15,7 @@ export const env = {
     .map((value) => value.trim())
     .filter(Boolean),
   appBaseUrl: process.env.APP_BASE_URL || 'http://localhost:5173',
+  authDebug: (process.env.AUTH_DEBUG || 'false') === 'true',
   discordClientId: process.env.DISCORD_CLIENT_ID || '',
   discordClientSecret: process.env.DISCORD_CLIENT_SECRET || '',
   discordRedirectUri: process.env.DISCORD_REDIRECT_URI || 'http://localhost:3001/auth/discord/callback',
