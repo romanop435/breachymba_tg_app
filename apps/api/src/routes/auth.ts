@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
 import { prisma } from '../lib/prisma.js';
-import { verifyTelegramInitData } from '../lib/telegram.js';
+import { getTelegramInitDataMeta, verifyTelegramInitData } from '../lib/telegram.js';
 import { env } from '../lib/env.js';
 import { buildDiscordAuthUrl, exchangeDiscordCode, fetchDiscordUser } from '../lib/discord.js';
 import crypto from 'crypto';
@@ -30,7 +30,15 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     const result = verifyTelegramInitData(initData, env.telegramBotToken);
     if (!result.ok || !result.data?.user) {
       const reason = result.ok ? 'missing_user' : result.reason;
-      return reply.code(401).send({ error: 'Invalid initData', reason });
+      const debug = env.telegramDebug
+        ? {
+            meta: getTelegramInitDataMeta(initData),
+            botTokenSuffix: env.telegramBotToken ? env.telegramBotToken.slice(-6) : '',
+            origin: request.headers.origin || null,
+            userAgent: request.headers['user-agent'] || null
+          }
+        : undefined;
+      return reply.code(401).send({ error: 'Invalid initData', reason, ...(debug ? { debug } : {}) });
     }
 
     const tgUser = result.data.user;
