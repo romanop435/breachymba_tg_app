@@ -29,7 +29,8 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     const result = verifyTelegramInitData(initData, env.telegramBotToken);
     if (!result.ok || !result.data?.user) {
-      return reply.code(401).send({ error: 'Invalid initData' });
+      const reason = result.ok ? 'missing_user' : result.reason;
+      return reply.code(401).send({ error: 'Invalid initData', reason });
     }
 
     const tgUser = result.data.user;
