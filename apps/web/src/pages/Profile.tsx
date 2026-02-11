@@ -24,7 +24,8 @@ export default function Profile() {
       toast.push('Telegram verified', 'success');
       meQuery.refetch();
     } catch (err) {
-      toast.push('Telegram verification failed', 'error');
+      const message = err instanceof Error && err.message ? err.message : 'Telegram verification failed';
+      toast.push(message, 'error');
     }
   };
 
