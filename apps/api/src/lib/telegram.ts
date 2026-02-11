@@ -1,5 +1,54 @@
 import crypto from 'crypto';
 
+export type TelegramInitDataMeta = {
+  initDataLength: number;
+  hasHash: boolean;
+  hashPrefix?: string;
+  hasUser: boolean;
+  userJsonError: boolean;
+  authDate?: string;
+  authDateAgeSec?: number;
+  dataCheckStringLength: number;
+};
+
+export function getTelegramInitDataMeta(initData: string): TelegramInitDataMeta {
+  const safeInitData = initData || '';
+  const params = new URLSearchParams(safeInitData);
+  const hash = params.get('hash');
+  const authDate = params.get('auth_date') || undefined;
+  const userRaw = params.get('user');
+  let userJsonError = false;
+  if (userRaw) {
+    try {
+      JSON.parse(userRaw);
+    } catch {
+      userJsonError = true;
+    }
+  }
+
+  const pairs: string[] = [];
+  params.forEach((value, key) => {
+    if (key === 'hash') return;
+    pairs.push(`${key}=${value}`);
+  });
+  pairs.sort();
+  const dataCheckString = pairs.join('\n');
+
+  const now = Date.now();
+  const authDateAgeSec = authDate ? Math.max(0, Math.floor(now / 1000) - Number(authDate)) : undefined;
+
+  return {
+    initDataLength: safeInitData.length,
+    hasHash: !!hash,
+    hashPrefix: hash ? hash.slice(0, 8) : undefined,
+    hasUser: !!userRaw,
+    userJsonError,
+    authDate,
+    authDateAgeSec,
+    dataCheckStringLength: dataCheckString.length
+  };
+}
+
 type VerifyOk = {
   ok: true;
   data: {
