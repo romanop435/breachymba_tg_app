@@ -30,7 +30,15 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 
   if (!res.ok) {
     const message = await res.text();
-    throw new Error(message || 'Request failed');
+    let detail = message;
+    try {
+      const parsed = JSON.parse(message);
+      if (parsed?.error && parsed?.reason) detail = `${parsed.error}: ${parsed.reason}`;
+      else if (parsed?.error) detail = parsed.error;
+    } catch {
+      // keep raw text
+    }
+    throw new Error(detail || 'Request failed');
   }
 
   return res.json();
