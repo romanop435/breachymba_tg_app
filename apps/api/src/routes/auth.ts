@@ -123,11 +123,14 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     return reply.send({ ok: true });
   });
 
-  fastify.get('/me', { preHandler: fastify.authenticate }, async (request) => {
-    const userId = (request.user as any)?.sub as string;
-    const telegramId = (request.user as any)?.telegramId as string;
+  fastify.get('/me', { preHandler: fastify.authenticate }, async (request, reply) => {
+    const userId = (request.user as any)?.sub as string | undefined;
+    const telegramId = (request.user as any)?.telegramId as string | undefined;
+    if (!userId) {
+      return reply.code(401).send({ error: 'Unauthorized' });
+    }
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    const isAdmin = env.adminTelegramIds.includes(telegramId);
+    const isAdmin = telegramId ? env.adminTelegramIds.includes(telegramId) : false;
     return { user, isAdmin };
   });
 };
