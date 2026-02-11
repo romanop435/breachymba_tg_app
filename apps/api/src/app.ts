@@ -27,7 +27,41 @@ export function buildApp() {
   });
 
   app.register(cors, {
-    origin: env.corsOrigin,
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const allowed = env.corsOrigins;
+      if (allowed.includes('*')) {
+        callback(null, true);
+        return;
+      }
+
+      let url: URL | null = null;
+      try {
+        url = new URL(origin);
+      } catch {
+        callback(null, false);
+        return;
+      }
+
+      const hostname = url.hostname;
+      const isAllowed = allowed.some((entry) => {
+        if (!entry) return false;
+        if (entry.includes('://')) {
+          return entry === origin || entry === url.origin;
+        }
+        if (entry.startsWith('*.')) {
+          const base = entry.slice(2);
+          return hostname.endsWith(`.${base}`);
+        }
+        return hostname === entry;
+      });
+
+      callback(null, isAllowed);
+    },
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
   });
