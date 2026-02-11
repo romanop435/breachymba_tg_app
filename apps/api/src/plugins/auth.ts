@@ -6,7 +6,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
     try {
       await request.jwtVerify();
     } catch (err) {
-      reply.code(401).send({ error: 'Unauthorized' });
+      return reply.code(401).send({ error: 'Unauthorized' });
     }
   });
 
@@ -16,11 +16,10 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
       const telegramId = (request.user as any)?.telegramId as string | undefined;
       const isAdmin = telegramId && env.adminTelegramIds.includes(telegramId);
       if (!isAdmin) {
-        reply.code(403).send({ error: 'Forbidden' });
-        return;
+        return reply.code(403).send({ error: 'Forbidden' });
       }
     } catch (err) {
-      reply.code(401).send({ error: 'Unauthorized' });
+      return reply.code(401).send({ error: 'Unauthorized' });
     }
   });
 };
