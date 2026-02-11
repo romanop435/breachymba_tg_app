@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-0: #0b0d10;
+  --bg-1: #10141a;
+  --bg-2: #151b23;
+  --text-0: #e6eaf0;
+  --text-1: #a9b1bc;
+  --muted: #2a3340;
+  --stroke: rgba(255, 255, 255, 0.06);
+  --shadow: rgba(0, 0, 0, 0.45);
+  --acc-0: #ff7a18;
+  --acc-1: #ff9a3c;
+  --acc-2: rgba(255, 122, 24, 0.18);
+  --ok: #38d16a;
+  --warn: #ffb020;
+  --danger: #ff3b3b;
+}
+
+.tg-light {
+  --bg-0: #f5f6f8;
+  --bg-1: #ffffff;
+  --bg-2: #eef1f5;
+  --text-0: #10141a;
+  --text-1: #4a5562;
+  --muted: #c7ced8;
+  --stroke: rgba(16, 20, 26, 0.08);
+  --shadow: rgba(0, 0, 0, 0.12);
+  --acc-0: #ff7a18;
+  --acc-1: #ff9a3c;
+  --acc-2: rgba(255, 122, 24, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(255, 122, 24, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 120% 20%, rgba(255, 255, 255, 0.04), transparent 60%),
+    var(--bg-0);
+  color: var(--text-0);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--acc-2);
+  color: var(--text-0);
+}
+
+@layer components {
+  .glass {
+    background: color-mix(in srgb, var(--bg-1) 78%, transparent);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--stroke);
+  }
+
+  .card-lift {
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  }
+
+  .card-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--acc-0);
+    outline-offset: 2px;
+  }
+
+  .markdown h1,
+  .markdown h2,
+  .markdown h3 {
+    font-weight: 600;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .markdown p {
+    margin: 0.5rem 0;
+    color: var(--text-1);
+    line-height: 1.6;
+  }
+
+  .markdown ul {
+    margin: 0.5rem 0 0.5rem 1rem;
+  }
+
+  .markdown li {
+    margin: 0.25rem 0;
+  }
+}

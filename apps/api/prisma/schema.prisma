@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum NewsPostType {
+  MANUAL
+  AUTO_WORKSHOP
+  AUTO_COLLECTION
+  AUTO_SERVER
+}
+
+enum SourceType {
+  WORKSHOP
+  COLLECTION
+  SERVER
+}
+
+enum PatchRefType {
+  WORKSHOP_ITEM
+  WORKSHOP_UPDATE
+  COLLECTION
+  COLLECTION_UPDATE
+  SERVER
+  NEWS_POST
+}
+
+model User {
+  id             String   @id @default(cuid())
+  telegramId     String   @unique
+  username       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  discordId      String?
+  discordUsername String?
+  discordAvatar  String?
+}
+
+model NewsPost {
+  id          String       @id @default(cuid())
+  type        NewsPostType
+  title       String
+  summary     String
+  body        String
+  tags        String[]
+  sourceType  SourceType?
+  sourceId    String?
+  isPinned    Boolean      @default(false)
+  isHidden    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  publishedAt DateTime?
+
+  @@index([type])
+  @@index([isPinned])
+  @@index([publishedAt])
+}
+
+model PatchNote {
+  id        String       @id @default(cuid())
+  title     String
+  markdown  String
+  refType   PatchRefType
+  refId     String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([refType, refId])
+}
+
+model WorkshopItem {
+  id             String    @id @default(cuid())
+  workshopFileId String    @unique
+  title          String
+  lastUpdateAt   DateTime?
+  metaJson       Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  updates        WorkshopUpdate[]
+}
+
+model WorkshopUpdate {
+  id             String   @id @default(cuid())
+  workshopItemId String
+  detectedAt     DateTime @default(now())
+  changeJson     Json
+  versionLabel   String?
+
+  workshopItem   WorkshopItem @relation(fields: [workshopItemId], references: [id])
+
+  @@index([workshopItemId])
+}
+
+model Collection {
+  id           String    @id @default(cuid())
+  collectionId String    @unique
+  title        String
+  lastChangeAt DateTime?
+  metaJson     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  updates      CollectionUpdate[]
+}
+
+model CollectionUpdate {
+  id           String   @id @default(cuid())
+  collectionId String
+  detectedAt   DateTime @default(now())
+  changeJson   Json
+
+  collection   Collection @relation(fields: [collectionId], references: [id])
+
+  @@index([collectionId])
+}
+
+model Server {
+  id         String   @id @default(cuid())
+  title      String
+  ip         String
+  port       Int
+  tags       String[]
+  sortOrder  Int      @default(0)
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  snapshots  ServerSnapshot[]
+}
+
+model ServerSnapshot {
+  id         String   @id @default(cuid())
+  serverId   String
+  checkedAt  DateTime @default(now())
+  isOnline   Boolean
+  players    Int
+  maxPlayers Int
+  map        String?
+  ping       Int?
+  rawJson    Json?
+
+  server     Server @relation(fields: [serverId], references: [id])
+
+  @@index([serverId, checkedAt])
+}
