@@ -5,6 +5,7 @@ export const env = {
   telegramBotToken: (process.env.TELEGRAM_BOT_TOKEN || '')
     .trim()
     .replace(/^['"]+|['"]+$/g, ''),
+  telegramDebug: (process.env.TELEGRAM_DEBUG || 'false') === 'true',
   adminTelegramIds: (process.env.ADMIN_TELEGRAM_IDS || '')
     .split(',')
     .map((id) => id.trim())
